@@ -1,22 +1,22 @@
 ---
 - hosts: wordpress
-  handlers:
-   - name: iniciando o apache
-     service:
-        name: httpd 
-        state: start
-  become: yes
-  vars: 
-    myrpm: httpd
   tasks:
-      - name: this is the task to install httpd
-        yum:
-          name: "{{ myrpm }}"
-          state: latest
-      
-      - name: Ensure apache is running
-        ansible.builtin.service:
-          name: httpd
-          state: started
-      
-  become: yes
+    - name: 'Instala pacotes de dependencia do sistema operacional'
+      yum:
+        name: ['httpd', 'php','php-mysqlnd', 'php-pdo', 'php-gd', 'php-mbstring', 'php-fpm', 'mariadb-server', 'python3-pip', 'python3-PyMySQL']
+        state: latest
+      become: yes
+
+    - name: 'Criando o banco do mysql'
+      mysql_db:
+        name: wordpress_db
+        login_user: root
+        state: present
+
+    - name: 'Criando o usuário do mysql'
+      mysql_user:
+        login_user: root
+        name: worldpress_user
+        password: 12345
+        priv: 'wordpress_db.*:ALL'
+        state: present
