@@ -6,12 +6,31 @@
       name: httpd
       state: restarted
      become: yes
+   
+   
+
+  
   tasks:
     - name: 'Instala pacotes de dependencia do sistema operacional'
       yum:
         name: ['httpd', 'php','php-mysqlnd', 'php-pdo', 'php-gd', 'php-mbstring', 'php-fpm', 'mariadb-server', 'python3-pip', 'python3-PyMySQL']
         state: latest
       become: yes
+    - name: Ativando o apache
+      service:
+        name: httpd
+        enabled: yes
+      become: yes
+    - name: ativando o mariadb
+      service:
+        name: mariadb
+        enabled: yes
+      become: yes
+    - name: inicializando mariadb
+      service:
+        name: mariadb
+        state: started
+      become: yes  
 
     - name: 'Criando o banco do mysql'
       mysql_db:
