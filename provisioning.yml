@@ -1,4 +1,35 @@
 ---
+- hosts: database
+  tasks:
+      - name: 'Instala banco de dados'
+        yum:
+          name: ['mariadb-server', 'python3-pip', 'python3-PyMySQL']
+          state: latest
+        become: yes
+      - name: ativando o mariadb
+        service:
+          name: mariadb
+          enabled: yes
+        become: yes
+      - name: inicializando mariadb
+        service:
+          name: mariadb
+          state: started
+        become: yes
+      - name: 'Criando o banco do mysql'
+        mysql_db:
+          name: wordpress_db
+          login_user: root
+          state: present
+
+      - name: 'Criando o usuário do mysql'
+        mysql_user:
+          login_user: root
+          name: worldpress_user
+          password: 12345
+          priv: 'wordpress_db.*:ALL'
+          state: present
+
 - hosts: wordpress
   handlers:
    - name: restart apache
@@ -6,14 +37,10 @@
       name: httpd
       state: restarted
      become: yes
-   
-   
-
-  
   tasks:
     - name: 'Instala pacotes de dependencia do sistema operacional'
       yum:
-        name: ['httpd', 'php','php-mysqlnd', 'php-pdo', 'php-gd', 'php-mbstring', 'php-fpm', 'mariadb-server', 'python3-pip', 'python3-PyMySQL']
+        name: ['httpd', 'php','php-mysqlnd', 'php-pdo', 'php-gd', 'php-mbstring', 'php-fpm','python3-pip']
         state: latest
       become: yes
     - name: Ativando o apache
@@ -21,31 +48,6 @@
         name: httpd
         enabled: yes
       become: yes
-    - name: ativando o mariadb
-      service:
-        name: mariadb
-        enabled: yes
-      become: yes
-    - name: inicializando mariadb
-      service:
-        name: mariadb
-        state: started
-      become: yes  
-
-    - name: 'Criando o banco do mysql'
-      mysql_db:
-        name: wordpress_db
-        login_user: root
-        state: present
-
-    - name: 'Criando o usuário do mysql'
-      mysql_user:
-        login_user: root
-        name: worldpress_user
-        password: 12345
-        priv: 'wordpress_db.*:ALL'
-        state: present
-
     - name: 'Baixa o arquivo de instalacao do wordpress'
       get_url:
         url: 'https://wordpress.org/latest.tar.gz'
