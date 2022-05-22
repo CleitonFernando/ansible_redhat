@@ -1,0 +1,11 @@
+---
+- name: 'Instala pacotes de dependencia do sistema operacional'
+  yum:
+    name: ['httpd', 'php','php-mysqlnd', 'php-pdo', 'php-gd', 'php-mbstring', 'php-fpm','python3-pip', 'python3-PyMySQL']
+    state: latest
+  become: yes
+- name: Ativando o apache
+  service:
+    name: httpd
+    enabled: yes
+  become: yes
